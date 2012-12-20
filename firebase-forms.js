@@ -24,13 +24,25 @@
         }
     };
 
+    FirebaseForms.TextField = function (params) {
+        var f = {};
+
+        $.extend(f, FirebaseForms.Field, params, {
+            render: function () {
+                return '<label>'+this.label+'</label><input type="text" name="'+this.field+'" id="id_'+this.field+'" placeholder="'+this.label+'" '+this.required+' value="'+this.initial+'" />';
+            }
+        });
+
+        return f;
+    };
+
     FirebaseForms.DateField = function (params) {
         // params is {} with any of `label, field, required, initial`
         var f = {};
 
         $.extend(f, FirebaseForms.Field, params, {
             render: function () {
-                return '<label>'+this.label+'</label><input type="date" name="'+this.field+'" id="id_'+this.field+'" placeholder="'+this.label+'" '+this.required+' value="'+this.initial+'" />';
+                return '<label>'+this.label+'</label><input type="date" name="'+this.field+'" id="id_'+this.field+'" '+this.required+' value="'+this.initial+'" />';
             }
         });
 

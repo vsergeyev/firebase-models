@@ -39,6 +39,7 @@
                     firebase: new Firebase("https://blabla.firebaseio-demo.com/Chat/"),
                     form: FirebaseForms.Form({
                         fields: {
+                            username: FirebaseForms.TextField({label: "Username", field: "username"}),
                             created_at: FirebaseForms.DateField({label: "Created at", field: "created_at"}),
                             text: FirebaseForms.BigTextField({label: "Text", field: "text"})
                         },
