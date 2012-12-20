@@ -23,7 +23,7 @@
                 <td>${username}</td>
                 <td>${text}</td>
                 <td width=50>
-                    <a class="btn" href="#">Edit</a>
+                    <a class="btn edit-item" href="#" data-id="${id}">Edit</a>
                 </td>
                 <td width=50>
                     <a class="btn remove-item" href="#" data-id="${id}">Delete</a>
@@ -103,6 +103,17 @@
                             console.log("ERROR saving item");
                         }
                     );
+                });
+
+                /* Edit item */
+                $(document).on("click", ".edit-item", function (e) {
+                    var id = $(this).data("id");
+
+                    e.preventDefault();
+
+                    $("#item_form").find("h3").html("Add item");
+                    $("#item_form").find(".modal-body").html(Chat.form.render(id));
+                    $("#item_form").modal();
                 });
 
                 /* Remove item */

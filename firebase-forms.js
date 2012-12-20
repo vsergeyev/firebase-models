@@ -68,8 +68,13 @@
         var f = {};
 
         $.extend(f, params, {
-            render: function () {
+            render: function (id) {
                 var res = '<form action="" method="post">';
+
+                // in case we edit item
+                if (id) {
+                    res += '<input type="hidden" name="id" id="id_id" value="' + id + '" />';
+                }
 
                 $.each(this.fields, function (k, v) {
                     res += "<p>" + v.render() + "</p>";
