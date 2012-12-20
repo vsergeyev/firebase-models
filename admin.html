@@ -20,6 +20,7 @@
         <script id="tmplChatRow" type="text/x-jquery-tmpl">
             <tr class="item-row-${id}">
                 <td>${created_at}</td>
+                <td>${username}</td>
                 <td>${text}</td>
                 <td width=50>
                     <a class="btn" href="#">Edit</a>
@@ -31,25 +32,40 @@
         </script>
 
         <script>
-            $(document).ready(function(){
-                var Chat = {};
+            var Chat = {};
+            $.extend(Chat, FirebaseModels.Model, {
+                type: "Chat",
+                firebase: new Firebase("https://blabla.firebaseio-demo.com/Chat/"),
+                form: FirebaseForms.Form({
+                    fields: {
+                        username: FirebaseForms.TextField({label: "Username", field: "username", required: "required"}),
+                        created_at: FirebaseForms.DateField({label: "Created at", field: "created_at", required: "required"}),
+                        text: FirebaseForms.BigTextField({label: "Text", field: "text", required: "required"})
+                    } //,
+                    // onSave: function (obj) {
+                    //     // body...
+                    // }
+                })
+            });
 
-                $.extend(Chat, FirebaseModels.Model, {
-                    type: "Chat",
-                    firebase: new Firebase("https://blabla.firebaseio-demo.com/Chat/"),
-                    form: FirebaseForms.Form({
-                        fields: {
-                            username: FirebaseForms.TextField({label: "Username", field: "username"}),
-                            created_at: FirebaseForms.DateField({label: "Created at", field: "created_at"}),
-                            text: FirebaseForms.BigTextField({label: "Text", field: "text"})
-                        },
-                        onSave: function (obj) {
-                            // body...
-                        }
-                    })
-                });
+            $.fn.serializeObject = function() {
+               var o = {};
+               var a = this.serializeArray();
+               $.each(a, function() {
+                   if (o[this.name]) {
+                       if (!o[this.name].push) {
+                           o[this.name] = [o[this.name]];
+                       }
+                       o[this.name].push(this.value || '');
+                   } else {
+                       o[this.name] = this.value || '';
+                   }
+               });
+               return o;
+            };
 
-                /* List of items */
+            function list_items() {
+                // Renders list of all items
                 Chat.all({},
                     function(items) {
                         $("#items").html("");
@@ -58,6 +74,11 @@
                         })
                     }
                 );
+            }
+
+            $(document).ready(function(){
+                /* List of items */
+                list_items();
 
                 /* Add item */
                 $(document).on("click", ".add-item", function (e) {
@@ -66,6 +87,22 @@
                     $("#item_form").find("h3").html("Add item");
                     $("#item_form").find(".modal-body").html(Chat.form.render());
                     $("#item_form").modal();
+                });
+
+                /* Save item */
+                $('.modal-body').on('submit', 'form', function(e) {
+                    e.preventDefault();
+                    Chat.put($(this).serializeObject(),
+                        function(id) {
+                            // Success
+                            $("#item_form").modal("hide");
+                            list_items();
+                        },
+                        function() {
+                            // Error
+                            console.log("ERROR saving item");
+                        }
+                    );
                 });
 
                 /* Remove item */
