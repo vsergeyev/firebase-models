@@ -12,18 +12,20 @@
 
         <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js"></script>
         <script src="http://ajax.aspnetcdn.com/ajax/jquery.templates/beta1/jquery.tmpl.min.js"></script>
+        <script src="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.2/js/bootstrap.min.js"></script>
         <script src='https://cdn.firebase.com/v0/firebase.js'></script>
         <script src="firebase-models.js"></script>
+        <script src="firebase-forms.js"></script>
 
         <script id="tmplChatRow" type="text/x-jquery-tmpl">
-            <tr>
+            <tr class="item-row-${id}">
                 <td>${created_at}</td>
                 <td>${text}</td>
                 <td width=50>
                     <a class="btn" href="#">Edit</a>
                 </td>
                 <td width=50>
-                    <a class="btn" href="#">Delete</a>
+                    <a class="btn remove-item" href="#" data-id="${id}">Delete</a>
                 </td>
             </tr>
         </script>
@@ -34,9 +36,19 @@
 
                 $.extend(Chat, FirebaseModels.Model, {
                     type: "Chat",
-                    firebase: new Firebase("https://blabla.firebaseio-demo.com/Chat/")
+                    firebase: new Firebase("https://blabla.firebaseio-demo.com/Chat/"),
+                    form: FirebaseForms.Form({
+                        fields: {
+                            created_at: FirebaseForms.DateField({label: "Created at", field: "created_at"}),
+                            text: FirebaseForms.BigTextField({label: "Text", field: "text"})
+                        },
+                        onSave: function (obj) {
+                            // body...
+                        }
+                    })
                 });
 
+                /* List of items */
                 Chat.all({},
                     function(items) {
                         $("#items").html("");
@@ -45,6 +57,30 @@
                         })
                     }
                 );
+
+                /* Add item */
+                $(document).on("click", ".add-item", function (e) {
+                    e.preventDefault();
+
+                    $("#item_form").find("h3").html("Add item");
+                    $("#item_form").find(".modal-body").html(Chat.form.render());
+                    $("#item_form").modal();
+                });
+
+                /* Remove item */
+                $(document).on("click", ".remove-item", function (e) {
+                    var id = $(this).data("id");
+
+                    e.preventDefault();
+
+                    Chat.remove(id, function (success) {
+                        if (success) {
+                            $("tr.item-row-"+id).remove();
+                        } else {
+                            console.log("ERROR removing item "+id);
+                        }
+                    })
+                });
             });
         </script>
     </head>
@@ -53,10 +89,18 @@
             <h1>Firebase admin UI (CRUD) tests</h1>
 
             <div class="navbar">
-                <a class="btn" href="#">Add</a>
+                <a class="btn add-item" href="#">Add</a>
             </div>
 
             <table id="items" class="table table-striped"></table>
+        </div>
+
+        <div id="item_form" class="modal hide">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h3>Form</h3>
+            </div>
+            <div class="modal-body"></div>
         </div>
     </body>
 </html>

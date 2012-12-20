@@ -30,7 +30,11 @@
 		firebase: "", // new Firebase("https://blabla.firebaseio-demo.com/");
 
 		/* Declarations of model fields */
-		meta: {},
+		form: {
+			render: function () {
+				return "Not Implemented";
+			}
+		},
 
 		/* Creates/Updates item in Model's collection */
 		put: function (obj, onSuccess, onError) {
@@ -62,10 +66,16 @@
 			});
 		},
 
+		/* Get all objects */
 		all: function (params, callback) {
 			this.firebase.once('value', function(data) {
 				callback(data.val() || []);
 			});
+		},
+
+		/* Remove object */
+		remove: function (id, callback) {
+			this.firebase.child(id).remove(callback);
 		}
 	};
 
