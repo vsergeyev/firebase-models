@@ -29,6 +29,9 @@
 		*/
 		firebase: "", // new Firebase("https://blabla.firebaseio-demo.com/");
 
+		/* Declarations of model fields */
+		meta: {},
+
 		/* Creates/Updates item in Model's collection */
 		put: function (obj, onSuccess, onError) {
 			// Assign ID to object if not present
@@ -59,7 +62,7 @@
 			});
 		},
 
-		all:  function (callback) {
+		all: function (params, callback) {
 			this.firebase.once('value', function(data) {
 				callback(data.val() || []);
 			});

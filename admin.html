@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Admin UI - Declarative models for Firebase</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="description" content="">
+        <meta name="author" content="">
+
+        <link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.2/css/bootstrap-combined.min.css" rel="stylesheet">
+
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js"></script>
+        <script src="http://ajax.aspnetcdn.com/ajax/jquery.templates/beta1/jquery.tmpl.min.js"></script>
+        <script src='https://cdn.firebase.com/v0/firebase.js'></script>
+        <script src="firebase-models.js"></script>
+
+        <script id="tmplChatRow" type="text/x-jquery-tmpl">
+            <tr>
+                <td>${created_at}</td>
+                <td>${text}</td>
+                <td width=50>
+                    <a class="btn" href="#">Edit</a>
+                </td>
+                <td width=50>
+                    <a class="btn" href="#">Delete</a>
+                </td>
+            </tr>
+        </script>
+
+        <script>
+            $(document).ready(function(){
+                var Chat = {};
+
+                $.extend(Chat, FirebaseModels.Model, {
+                    type: "Chat",
+                    firebase: new Firebase("https://blabla.firebaseio-demo.com/Chat/")
+                });
+
+                Chat.all({},
+                    function(items) {
+                        $("#items").html("");
+                        $.each(items, function (k, v) {
+                            $("#items").append($("#tmplChatRow").tmpl(v));
+                        })
+                    }
+                );
+            });
+        </script>
+    </head>
+    <body>
+        <div class="container">
+            <h1>Firebase admin UI (CRUD) tests</h1>
+
+            <div class="navbar">
+                <a class="btn" href="#">Add</a>
+            </div>
+
+            <table id="items" class="table table-striped"></table>
+        </div>
+    </body>
+</html>
