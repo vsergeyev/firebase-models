@@ -92,6 +92,8 @@
             $(form).on('submit', 'form', function(e) {
                 e.preventDefault();
 
+                //console.log(serializeObject($(this)));
+
                 model.put(serializeObject($(this)),
                     function(id) { // Success
                         $(form).modal("hide");

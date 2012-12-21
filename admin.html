@@ -41,7 +41,8 @@
                     fields: {
                         username: FirebaseForms.TextField({label: "Username", field: "username", required: "required"}),
                         created_at: FirebaseForms.DateField({label: "Created at", field: "created_at", required: "required"}),
-                        text: FirebaseForms.BigTextField({label: "Text", field: "text", required: "required"})
+                        text: FirebaseForms.BigTextField({label: "Text", field: "text", required: "required"}),
+                        tags: FirebaseForms.CheckboxListField({label: "Tags", field: "tags", query: {1: "Chat", 2: "Problem", 3: "Solved"}})
                     }
                 })
             });

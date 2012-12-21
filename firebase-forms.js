@@ -25,6 +25,7 @@
     };
 
     FirebaseForms.TextField = function (params) {
+        /* Html text input */
         var f = {};
 
         $.extend(f, FirebaseForms.Field, params, {
@@ -37,6 +38,7 @@
     };
 
     FirebaseForms.DateField = function (params) {
+        /* Html 5 date input */
         // params is {} with any of `label, field, required, initial`
         var f = {};
 
@@ -50,11 +52,40 @@
     };
 
     FirebaseForms.BigTextField = function (params) {
+        /* Html textarea */
         var f = {};
 
         $.extend(f, FirebaseForms.Field, params, {
             render: function () {
                 return '<label>'+this.label+'</label><textarea name="'+this.field+'" id="id_'+this.field+'" placeholder="'+this.label+'" '+this.required+'>'+this.initial+'</textarea>';
+            }
+        });
+
+        return f;
+    };
+
+    FirebaseForms.CheckboxListField = function (params) {
+        /* Html group of checkboxes with same `name` */
+        // `query` expected to be in params, query is object {key: value, ...}
+        // every item of query will become checkbox input
+        // `initial` may be empty or array
+        var f = {
+            query: {}
+        };
+
+        $.extend(f, FirebaseForms.Field, params, {
+            render: function () {
+                var that = this,
+                    res = '<h3>' + this.label + '</h3>';
+
+                $.each(this.query, function (k, v) {
+                    // `initial` expected to be an array
+                    var is_checked = ($.inArray(k, that.initial) > -1) ? "checked" : "";
+
+                    res += '<label class="checkbox"><input type="checkbox" name="'+that.field+'" value="'+k+'" '+is_checked+' '+that.required+' /> '+v+'</label>';
+                })
+
+                return res;
             }
         });
 
