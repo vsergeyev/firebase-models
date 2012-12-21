@@ -68,15 +68,20 @@
         var f = {};
 
         $.extend(f, params, {
-            render: function (id) {
+            render: function (item) {
                 var res = '<form action="" method="post">';
 
                 // in case we edit item
-                if (id) {
-                    res += '<input type="hidden" name="id" id="id_id" value="' + id + '" />';
+                if (item) {
+                    res += '<input type="hidden" name="id" id="id_id" value="' + item.id + '" />';
                 }
 
                 $.each(this.fields, function (k, v) {
+                    // If we edit item - assign initial value for field
+                    v.initial = "";
+                    if (item && item.hasOwnProperty(v.field))
+                        v.initial = item[v.field];
+                    // Render field as a piece of html
                     res += "<p>" + v.render() + "</p>";
                 });
 

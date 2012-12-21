@@ -16,6 +16,7 @@
         <script src='https://cdn.firebase.com/v0/firebase.js'></script>
         <script src="firebase-models.js"></script>
         <script src="firebase-forms.js"></script>
+        <script src="firebase-admin.js"></script>
 
         <script id="tmplChatRow" type="text/x-jquery-tmpl">
             <tr class="item-row-${id}">
@@ -41,10 +42,7 @@
                         username: FirebaseForms.TextField({label: "Username", field: "username", required: "required"}),
                         created_at: FirebaseForms.DateField({label: "Created at", field: "created_at", required: "required"}),
                         text: FirebaseForms.BigTextField({label: "Text", field: "text", required: "required"})
-                    } //,
-                    // onSave: function (obj) {
-                    //     // body...
-                    // }
+                    }
                 })
             });
 
@@ -64,72 +62,24 @@
                return o;
             };
 
-            function list_items() {
-                // Renders list of all items
-                Chat.all({},
-                    function(items) {
-                        $("#items").html("");
-                        $.each(items, function (k, v) {
-                            $("#items").append($("#tmplChatRow").tmpl(v));
-                        })
-                    }
-                );
-            }
-
             $(document).ready(function(){
                 /* List of items */
-                list_items();
+                FirebaseAdmin.list(Chat, "#items", "#tmplChatRow");
 
-                /* Add item */
-                $(document).on("click", ".add-item", function (e) {
-                    e.preventDefault();
+                /* Set handler for Add item */
+                FirebaseAdmin.on_add(Chat, ".add-item", "#item_form");
 
-                    $("#item_form").find("h3").html("Add item");
-                    $("#item_form").find(".modal-body").html(Chat.form.render());
-                    $("#item_form").modal();
+                /* Set handler for Edit item */
+                FirebaseAdmin.on_edit(Chat, ".edit-item", "#item_form");
+
+                /* Set handler for Save item */
+                FirebaseAdmin.on_save(Chat, "#item_form", function (id) {
+                    // This is Callback. Let refresh list
+                    FirebaseAdmin.list(Chat, "#items", "#tmplChatRow");
                 });
 
-                /* Save item */
-                $('.modal-body').on('submit', 'form', function(e) {
-                    e.preventDefault();
-                    Chat.put($(this).serializeObject(),
-                        function(id) {
-                            // Success
-                            $("#item_form").modal("hide");
-                            list_items();
-                        },
-                        function() {
-                            // Error
-                            console.log("ERROR saving item");
-                        }
-                    );
-                });
-
-                /* Edit item */
-                $(document).on("click", ".edit-item", function (e) {
-                    var id = $(this).data("id");
-
-                    e.preventDefault();
-
-                    $("#item_form").find("h3").html("Add item");
-                    $("#item_form").find(".modal-body").html(Chat.form.render(id));
-                    $("#item_form").modal();
-                });
-
-                /* Remove item */
-                $(document).on("click", ".remove-item", function (e) {
-                    var id = $(this).data("id");
-
-                    e.preventDefault();
-
-                    Chat.remove(id, function (success) {
-                        if (success) {
-                            $("tr.item-row-"+id).remove();
-                        } else {
-                            console.log("ERROR removing item "+id);
-                        }
-                    })
-                });
+                /* Set handler for Remove item */
+                FirebaseAdmin.on_remove(Chat, ".remove-item", "tr.item-row-");
             });
         </script>
     </head>
