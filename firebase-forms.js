@@ -106,6 +106,32 @@
         return f;
     };
 
+    FirebaseForms.ChoiceField = function (params) {
+        /* Html select */
+        // `query` expected to be in params, query is object {key: value, ...}
+        // every item of query will become option in dropdown list
+        var f = {
+            query: {}
+        };
+
+        $.extend(f, FirebaseForms.Field, params, {
+            render: function () {
+                var that = this,
+                    res = '<label>' + this.label + '</label><select name="'+this.field+'" id="id_'+this.field+'"><option value="">-- '+this.label+' --</option>';
+
+                $.each(this.query, function (k, v) {
+                    var is_checked = (k === that.initial) ? 'selected="selected"' : '';
+
+                    res += '<option value="'+k+'" '+is_checked+'>'+v+'</option>';
+                })
+
+                return res + '</select>';
+            }
+        });
+
+        return f;
+    };
+
     /* ---- FORMS ---------------------------------------------------------- */
 
     FirebaseForms.Form = function (params) {
