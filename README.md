@@ -78,3 +78,22 @@ Remove item:
 
     // Or let user do it in UI: handler for `Remove` button
     FirebaseAdmin.on_remove(Chat, ".remove-item", "tr.item-row-");
+
+
+Forms Fields
+------------
+
+ * TextField - renders to one line text input
+ * BigTextField - renders to textarea
+ * DateField - renders to html 5 date picker
+ * CheckboxField - renders to checkbox
+ * CheckboxListField - a list of checkboxes with same 'name' attr
+ * ChoiceField - selectbox with a list of options
+
+
+Dependencies
+------------
+
+ * JQuery
+ * JQuery templates
+ * Bootstrap
