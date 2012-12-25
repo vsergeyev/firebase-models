@@ -64,6 +64,20 @@
         return f;
     };
 
+    FirebaseForms.CheckboxField = function (params) {
+        /* Html checkbox */
+        var f = {};
+
+        $.extend(f, FirebaseForms.Field, params, {
+            render: function () {
+                var is_checked = this.initial ? "checked" : "";
+                return '<label class="checkbox"><input type="checkbox" name="'+this.field+'" id="id_'+this.field+'" '+is_checked+' '+this.required+' />'+this.label+'</label>';
+            }
+        });
+
+        return f;
+    };
+
     FirebaseForms.CheckboxListField = function (params) {
         /* Html group of checkboxes with same `name` */
         // `query` expected to be in params, query is object {key: value, ...}
