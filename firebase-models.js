@@ -45,10 +45,10 @@
 			// Push to firebase
 			this.firebase.child(obj.id).transaction(function(old_obj) {
 			    return obj;
-			}, function(success) {
-				if (success && onSuccess) onSuccess(obj.id);
+			}, function(error, committed, snapshot) {
+				if (!error && onSuccess) onSuccess(obj.id);
 
-				if (!success && onError) onError();
+				if (error && onError) onError();
 			});
 		},
 
