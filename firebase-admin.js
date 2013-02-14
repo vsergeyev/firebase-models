@@ -76,16 +76,25 @@
                 /* Helper function */
                 var o = {};
                 var a = obj.serializeArray();
+
                 $.each(a, function() {
-                   if (o[this.name]) {
-                       if (!o[this.name].push) {
-                           o[this.name] = [o[this.name]];
-                       }
-                       o[this.name].push(this.value || '');
-                   } else {
-                       o[this.name] = this.value || '';
-                   }
+                    // 1. If several html inputs with same name (ex. - checkboxes group)
+                    if (o[this.name]) {
+                        if (!o[this.name].push) {
+                            o[this.name] = [o[this.name]];
+                        }
+                        o[this.name].push(this.value || '');
+                    // 2. Common case - html input with unique name
+                    } else {
+                        o[this.name] = this.value || '';
+                    }
                 });
+
+                // 3. File fields
+                obj.find("input[type=file]").each(function() {
+                    o[this.name] = $(this).data("payload") || '';
+                });
+
                 return o;
             };
 

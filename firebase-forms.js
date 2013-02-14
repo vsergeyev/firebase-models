@@ -132,6 +132,38 @@
         return f;
     };
 
+    FirebaseForms.FileField = function (params) {
+        /* Html text file */
+        var f = {
+            accept: "", //say "image/*" to accept images only
+            capture: "" //say "camera" to allow use camera on smartphone/tablet as source  of image
+        };
+
+        // TODO: Find better way then appending oneliner to every file control
+        // We use FileReader object to load file content locally
+        var file_change = "var $this = $(this), reader = new FileReader(); reader.onload=function(e) {$this.data('payload', e.target.result)}; reader.readAsDataURL($this[0].files[0]);";
+        /* Source: */
+        // var $this = $(this),
+        //     reader = new FileReader();
+
+        // reader.onload = function(e) {
+        //     $this.data('payload', e.target.result)
+        // };
+        // reader.readAsDataURL($this[0].files[0]);
+
+        $.extend(f, FirebaseForms.Field, params, {
+            render: function () {
+                return '<label>'+this.label+'</label>'
+                    + '<input type="file" accept="' + this.accept
+                    + '" capture="' + this.capture + '" name="' + this.field
+                    + '" id="id_' + this.field + '" placeholder="' + this.label
+                    + '" '+this.required+' onchange="' + file_change + '" />';
+            }
+        });
+
+        return f;
+    };
+
     /* ---- FORMS ---------------------------------------------------------- */
 
     FirebaseForms.Form = function (params) {
@@ -140,7 +172,7 @@
 
         $.extend(f, params, {
             render: function (item) {
-                var res = '<form action="" method="post">';
+                var res = '<form action="" method="post" enctype="multipart/form-data">';
 
                 // in case we edit item
                 if (item) {
