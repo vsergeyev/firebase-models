@@ -1,150 +1,101 @@
 /*!
- * Admin CRUD for Firebase
- * Version 1.0.0
+ * Models for Firebase
+ * Version 1.1
  *
- * 2012, Volodymyr Sergeyev
+ * 2014, Volodymyr Sergeyev & Samuel Beek
  * VULCAN labs
  */
 
 (function(){
-    var FirebaseAdmin = {
-        list: function (model, el, row_template) {
-            /* Renders list of Model items.
+	var FirebaseModels = {};
 
-            model - firebase model, ex. Chat
-            el - selector of wrapper for items, ex. "#items" table
-            row_template - jQuery template selector, ex. "#tmplChatRow"
-             */
-            model.all({},
-                function(items) {
-                    $(el).html("");
-                    $.each(items, function (k, v) {
-                        $(el).append($(row_template).tmpl(v));
-                    })
-                }
-            );
-        },
+	console.log("firebase model");
 
-        on_add: function (model, btn, form) {
-            /* Set handler for Add button click
-
-            model - firebase model
-            btn - selector of "Add item" button element, ex. ".add-item"
-            form - selector of bootstrap modal form, ex. "#item_form"
-             */
-            $(document).on("click", btn, function (e) {
-                e.preventDefault();
-
-                $(form).find("h3").html("Add item");
-                $(form).find(".modal-body").html(model.form.render());
-                $(form).modal();
-            });
-        },
-
-        on_edit: function (model, btn, form) {
-            /* Set handler for Edit button click
-
-            model - firebase model
-            btn - selector of "Edit item" button element, ex. ".edit-item"
-            form - selector of bootstrap modal form, ex. "#item_form"
-
-            Note: button should have `data-id` attr with value of item `id`
-             */
-            $(document).on("click", btn, function (e) {
-                var id = $(this).data("id");
-
-                e.preventDefault();
-
-                model.get(id, function (item) {
-                    $(form).find("h3").html("Edit item");
-                    $(form).find(".modal-body").html(model.form.render(item));
-                    $(form).modal(); 
-                });
-            });
-        },
-
-        on_save: function (model, form, callback, callback_error) {
-            /* Set handler for submit of form
-
-            model - firebase model
-            form - selector of bootstrap modal form, ex. "#item_form"
-            callback - callback function for success (optional)
-            callback_error - callback function for error (optional)
-             */
-            
-            function serializeObject(obj) {
-                /* Helper function */
-                var o = {};
-                var a = obj.serializeArray();
-
-                $.each(a, function() {
-                    // 1. If several html inputs with same name (ex. - checkboxes group)
-                    if (o[this.name]) {
-                        if (!o[this.name].push) {
-                            o[this.name] = [o[this.name]];
-                        }
-                        o[this.name].push(this.value || '');
-                    // 2. Common case - html input with unique name
-                    } else {
-                        o[this.name] = this.value || '';
-                    }
-                });
-
-                // 3. File fields
-                obj.find("input[type=file]").each(function() {
-                    o[this.name] = $(this).data("payload") || '';
-                });
-
-                return o;
-            };
-
-            $(form).on('submit', 'form', function(e) {
-                e.preventDefault();
-
-                //console.log(serializeObject($(this)));
-
-                model.put(serializeObject($(this)),
-                    function(id) { // Success
-                        $(form).modal("hide");
-
-                        if (callback) callback();
-                    },
-                    function() { // Error
-                        if (callback_error) callback_error();
-                    }
-                );
-            });
-        },
-
-        on_remove: function (model, btn, el, callback, callback_error) {
-            /* Set handler for Remove button click
-            
-            model - firebase model
-            btn - selector of "Edit item" button element, ex. ".remove-item"
-            el - selector of item row prefix, ex. "tr.item-row-"
-            callback - callback function for success (optional)
-            callback_error - callback function for error (optional)
-
-            Note #1: button should have `data-id` attr with value of item `id`
-            Note #2: item row selector expected to be `el + id` string
-             */
-            $(document).on("click", ".remove-item", function (e) {
-                var id = $(this).data("id");
-
-                e.preventDefault();
-
-                model.remove(id, function (success) {
-                    if (success) { // Success
-                        $(el+id).remove();
-
-                        if (callback) callback();
-                    } else { // Error
-                        if (callback_error) callback_error();
-                    }
-                })
-            });
-        }
+	FirebaseModels.new_id = function() {
+		/* GUIDs generator. Guaranteed to be unique */
+    	return 'xxxxxxxx-xxxx-7xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+			var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
+			return v.toString(16);
+		});
     };
 
-    this.FirebaseAdmin = FirebaseAdmin;
+	/* Base model */
+	FirebaseModels.Model = {
+		/* `type` is kinda `table`, `collection` in firebase dataref */
+		type: "Model",
+
+		/* `firebase` is dataref.
+			One dataref may be used for all models in app;
+			or several refs as well.
+			This is like DB in Django.
+		*/
+		firebase: "", // new Firebase("https://blabla.firebaseio-demo.com/");
+
+		/* Declarations of model fields */
+		form: {
+			render: function () {
+				return "Not Implemented";
+			}
+		},
+
+		/* Creates/Updates item in Model's collection */
+		put: function (obj, onSuccess, onError) {
+			console.log(obj);
+
+			// Assign ID to object if not present
+			if (!obj.hasOwnProperty("id"))
+				obj.id = FirebaseModels.new_id();
+
+			// Push to firebase
+			this.firebase.child(obj.id).transaction(function(old_obj) {
+			    console.log(old_obj);
+
+				//merge the old object with the new object to preserve child objects/arrays
+				if (old_obj != null) {
+					$.extend( true, old_obj , obj );
+					return old_obj;
+
+				} else {
+					return obj;
+				}
+
+			    console.log(old_obj);
+
+			}, function(error, committed, snapshot) {
+				if (!error && onSuccess) onSuccess(obj.id);
+
+				if (error && onError) onError();
+			});
+		},
+
+		/* Obtains 1 object. Returns `null` if it not exists */
+		get: function (id, callback) {
+			this.firebase.child(id).once('value', function(data) {
+				console.log(data.val());
+				callback(data.val());
+			});
+
+		},
+
+		/* Check if object exists */
+		exists: function (id, callback) {
+			this.firebase.child(id).once('value', function(data) {
+				callback(data.val() !== null);
+			});
+		},
+
+		/* Get all objects */
+		all: function (params, callback) {
+			this.firebase.once('value', function(data) {
+				callback(data.val() || []);
+			});
+		},
+
+		/* Remove object */
+		remove: function (id, callback) {
+			this.firebase.child(id).remove(callback);
+		}
+	};
+
+ 	this.FirebaseModels = FirebaseModels;
 }).call(this);
