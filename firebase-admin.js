@@ -11,13 +11,13 @@
         list: function (model, el, row_template) {
             /* Renders list of Model items.
 
-            model - firebase model, ex. Chat
+            model - firebase model, ex. Movies
             el - selector of wrapper for items, ex. "#items" table
-            row_template - jQuery template selector, ex. "#tmplChatRow"
+            row_template - jQuery template selector, ex. "#tmplMoviesRow"
              */
             model.all({},
                 function(items) {
-                    $(el).html("");
+                    $(el).html();
                     $.each(items, function (k, v) {
                         $(el).append($(row_template).tmpl(v));
                     })
@@ -58,7 +58,7 @@
                 model.get(id, function (item) {
                     $(form).find("h3").html("Edit item");
                     $(form).find(".modal-body").html(model.form.render(item));
-                    $(form).modal(); 
+                    $(form).modal();
                 });
             });
         },
@@ -71,7 +71,7 @@
             callback - callback function for success (optional)
             callback_error - callback function for error (optional)
              */
-            
+
             function serializeObject(obj) {
                 /* Helper function */
                 var o = {};
@@ -103,7 +103,7 @@
 
                 //console.log(serializeObject($(this)));
 
-                model.put(serializeObject($(this)),
+                model.put(serializeObject($(this)), //debug: put? 
                     function(id) { // Success
                         $(form).modal("hide");
 
@@ -118,7 +118,7 @@
 
         on_remove: function (model, btn, el, callback, callback_error) {
             /* Set handler for Remove button click
-            
+
             model - firebase model
             btn - selector of "Edit item" button element, ex. ".remove-item"
             el - selector of item row prefix, ex. "tr.item-row-"

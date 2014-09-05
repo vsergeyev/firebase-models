@@ -1,13 +1,15 @@
 /*!
  * Models for Firebase
- * Version 1.0.0
+ * Version 1.1
  *
- * 2012, Volodymyr Sergeyev
+ * 2014, Volodymyr Sergeyev & Samuel Beek
  * VULCAN labs
  */
 
 (function(){
 	var FirebaseModels = {};
+
+	console.log("firebase model");
 
 	FirebaseModels.new_id = function() {
 		/* GUIDs generator. Guaranteed to be unique */
@@ -38,13 +40,27 @@
 
 		/* Creates/Updates item in Model's collection */
 		put: function (obj, onSuccess, onError) {
+			console.log(obj);
+
 			// Assign ID to object if not present
 			if (!obj.hasOwnProperty("id"))
 				obj.id = FirebaseModels.new_id();
 
 			// Push to firebase
 			this.firebase.child(obj.id).transaction(function(old_obj) {
-			    return obj;
+			    console.log(old_obj);
+
+				//merge the old object with the new object to preserve child objects/arrays
+				if (old_obj != null) {
+					$.extend( true, old_obj , obj );
+					return old_obj;
+
+				} else {
+					return obj;
+				}
+
+			    console.log(old_obj);
+
 			}, function(error, committed, snapshot) {
 				if (!error && onSuccess) onSuccess(obj.id);
 
@@ -55,8 +71,10 @@
 		/* Obtains 1 object. Returns `null` if it not exists */
 		get: function (id, callback) {
 			this.firebase.child(id).once('value', function(data) {
+				console.log(data.val());
 				callback(data.val());
 			});
+
 		},
 
 		/* Check if object exists */
